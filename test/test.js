@@ -26,7 +26,6 @@ describe('Feender', function(){
       assert.equal(feeds.length, 2);
       done();
     })
-
   });
 
   it('should extract the links from an ATOM feed document', function(done) {
