@@ -4,8 +4,7 @@ var $ = require('jquery');
 var urlparser = require('url');
 
 module.exports = function(url, done) {
-
-  http.get(url, function (response) {
+  http.get(urlparser.parse(url), function (response) {
     var feeds = [];
     var body = '';
     response.on('data', function (chunk) {
