@@ -1,16 +1,19 @@
 
-var request = require('request');
+var http = require('http');
 var $ = require('jquery');
 var urlparser = require('url');
 
 module.exports = function(url, done) {
-  request(url, function (error, response, body) {
+
+  http.get(url, function (response) {
     var feeds = [];
-    if(error) {
-      done(error, feeds);
-    }
-    else {
-      var doc = $(body);
+    var body = '';
+    response.on('data', function (chunk) {
+      body += chunk;
+    });
+
+    response.on('end', function() {
+            var doc = $(body);
       var links = doc.find('head link'); // Let's extract all the header links.
       $(links).each(function(i, l){
         var link = $(l);
@@ -57,7 +60,9 @@ module.exports = function(url, done) {
       }
 
       done(null, feeds);
-    }
+    });
+  }).on('error', function(error) {
+    done(error, feeds);
   });
 };
 
