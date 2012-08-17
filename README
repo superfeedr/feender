@@ -1,0 +1,3 @@
+This is a simple node.js (pure javascript) module that's able to extract feed urls from any url.
+This is based on Feediscovery, but functions locally, to avoid the outrageous charges from GAE.
+
