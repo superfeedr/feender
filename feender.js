@@ -2,6 +2,8 @@
 var http = require('http');
 var $ = require('jquery');
 var urlparser = require('url');
+var htmlparser = require("htmlparser");
+var select = require('soupselect').select;
 
 module.exports = function(url, done) {
   http.get(urlparser.parse(url), function (response) {
@@ -12,56 +14,60 @@ module.exports = function(url, done) {
     });
 
     response.on('end', function() {
-            var doc = $(body);
-      var links = doc.find('head link'); // Let's extract all the header links.
-      $(links).each(function(i, l){
-        var link = $(l);
-        if (link.attr('type') === "application/atom+xml" || link.attr('type') === "application/rss+xml") {
-          var feedUrl = urlparser.parse(link.attr('href'));
-          var feed = {rel: "alternate", type: link.attr('type')};
-          if(feedUrl.hostname) {
-            feed.href = link.attr('href');
-          }
-          else {
-            feed.href = urlparser.format(urlparser.resolve(url, link.attr('href')));
-          }
-          if(link.attr('title') !== "") {
-            feed.title = link.attr('title');
-          }
-          else {
-            feed.title = doc.find('title').text();
-          }
-          feeds.push(feed)
+      var handler = new htmlparser.DefaultHandler(function (error, dom) {
+        if (error) {
+          console.log("FUUU")
         }
-      });
+        else {
 
-      if(feeds.length === 0) {
-        for(var i =0; i <doc.length; i++) {
-          if(doc[i]._tagName === "feed") {
+          select(dom, "head link").forEach(function(link) {
+            if (link.attribs.type === "application/atom+xml" || link.attribs.type === "application/rss+xml") {
+              var feedUrl = urlparser.parse(link.attribs.href);
+              var feed = {rel: "alternate", type: link.attribs.type};
+              if(feedUrl.hostname) {
+                feed.href = link.attribs.href;
+              }
+              else {
+                feed.href = urlparser.format(urlparser.resolve(url, link.attribs.href));
+              }
+              if(link.attribs.title) {
+                feed.title = link.attribs.title;
+              }
+              else {
+                feed.title = select(dom, "title")[0].children[0].raw;
+              }
+              feeds.push(feed)
+            }
+          });
+
+          if(feeds.length === 0) {
+            var atom = select(dom, "feed");
+            if(atom.length > 0 && atom[0].attribs.xmlns.toLowerCase() === 'http://www.w3.org/2005/Atom'.toLowerCase()) {
+              feeds.push({
+                rel: "self",
+                type: "application/atom+xml",
+                href: url,
+                title: select(dom, "title")[0].children[0].raw
+              });
+            }
+          }
+          if(feeds.length === 0) {
+            var rss = select(dom, "rss")[0];
             feeds.push({
               rel: "self",
-              type: "application/atom+xml",
+              type: "application/rss+xml",
               href: url,
-              title: $(doc.find('title')[0]).text()
+              title: select(dom, "title")[0].children[0].raw
             });
           }
+          done(null, feeds);
         }
-      }
-      if(feeds.length === 0) {
-        if(doc.find('channel').length > 0 ) {
-          feeds.push({
-            rel: "self",
-            type: "application/rss+xml",
-            href: url,
-            title: doc.find('channel>title').text()
-          });
-        }
-      }
-
-      done(null, feeds);
-    });
-  }).on('error', function(error) {
-    done(error, feeds);
-  });
+      });
+var parser = new htmlparser.Parser(handler);
+parser.parseComplete(body);
+});
+}).on('error', function(error) {
+  done(error, feeds);
+});
 };
 
