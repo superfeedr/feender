@@ -1,8 +1,7 @@
 
 var http = require('http');
-var $ = require('jquery');
 var urlparser = require('url');
-var htmlparser = require("htmlparser");
+var htmlparser = require('htmlparser');
 var select = require('soupselect').select;
 
 module.exports = function(url, done) {
@@ -16,7 +15,7 @@ module.exports = function(url, done) {
     response.on('end', function() {
       var handler = new htmlparser.DefaultHandler(function (error, dom) {
         if (error) {
-          console.log("FUUU")
+          done(error, null);
         }
         else {
 
@@ -53,12 +52,14 @@ module.exports = function(url, done) {
           }
           if(feeds.length === 0) {
             var rss = select(dom, "rss")[0];
-            feeds.push({
-              rel: "self",
-              type: "application/rss+xml",
-              href: url,
-              title: select(dom, "title")[0].children[0].raw
-            });
+            if(rss) {
+              feeds.push({
+                rel: "self",
+                type: "application/rss+xml",
+                href: url,
+                title: select(dom, "title")[0].children[0].raw
+              });
+            }
           }
           done(null, feeds);
         }
