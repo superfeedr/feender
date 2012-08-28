@@ -20,7 +20,7 @@ module.exports = function(url, done) {
         else {
 
           select(dom, "head link").forEach(function(link) {
-            if (link.attribs.type === "application/atom+xml" || link.attribs.type === "application/rss+xml") {
+            if ((link.attribs.type === "application/atom+xml" || link.attribs.type === "application/rss+xml") && link.attribs.href) {
               var feedUrl = urlparser.parse(link.attribs.href);
               var feed = {rel: "alternate", type: link.attribs.type};
               if(feedUrl.hostname) {
