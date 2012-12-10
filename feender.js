@@ -7,6 +7,8 @@ var select = require('soupselect').select;
 module.exports = function(url, done) {
 
   var parsed = urlparser.parse(url);
+  parsed.headers = {'Cookie': null};
+
   var client = http;
   if(parsed.protocol === 'https:')
     client = https;
