@@ -1,11 +1,17 @@
-
 var http = require('http');
+var https = require('https');
 var urlparser = require('url');
 var htmlparser = require('htmlparser');
 var select = require('soupselect').select;
 
 module.exports = function(url, done) {
-  http.get(urlparser.parse(url), function (response) {
+
+  var parsed = urlparser.parse(url);
+  var client = http;
+  if(parsed.protocol === 'https:')
+    client = https;
+
+  client.get(parsed, function (response) {
     var feeds = [];
     var body = '';
     response.on('data', function (chunk) {
@@ -18,7 +24,6 @@ module.exports = function(url, done) {
           done(error, null);
         }
         else {
-
           select(dom, "head link").forEach(function(link) {
             if ((link.attribs.type === "application/atom+xml" || link.attribs.type === "application/rss+xml") && link.attribs.href) {
               var feedUrl = urlparser.parse(link.attribs.href);
@@ -64,11 +69,11 @@ module.exports = function(url, done) {
           done(null, feeds);
         }
       });
-var parser = new htmlparser.Parser(handler);
-parser.parseComplete(body);
-});
-}).on('error', function(error) {
-  done(error, feeds);
-});
+      var parser = new htmlparser.Parser(handler);
+      parser.parseComplete(body);
+    });
+  }).on('error', function(error) {
+    done(error, feeds);
+  });
 };
 
