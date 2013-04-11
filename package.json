@@ -8,7 +8,8 @@
   "license": "BSD",
   "dependencies": {
     "htmlparser": "*",
-    "soupselect": "*"
+    "soupselect": "*",
+    "request": "~2.16.6"
   },
   "description": "This is a simple node.js (pure javascript) module that's able to extract feed urls from any url. This is based on Feediscovery, but functions locally, to avoid the outrageous charges from GAE."
 }
