@@ -32,6 +32,10 @@ module.exports = function(url, done) {
           }
         });
 
+        var title = '';
+        if(select(dom, "title")[0] && select(dom, "title")[0].children && select(dom, "title")[0].children[0])
+          title = select(dom, "title")[0].children[0].raw;
+
         if(feeds.length === 0) {
           var atom = select(dom, "feed");
           if(atom.length > 0 && atom[0].attribs.xmlns.toLowerCase() === 'http://www.w3.org/2005/Atom'.toLowerCase()) {
@@ -39,7 +43,7 @@ module.exports = function(url, done) {
               rel: "self",
               type: "application/atom+xml",
               href: url,
-              title: select(dom, "title")[0].children[0].raw
+              title: title
             });
           }
         }
@@ -50,7 +54,7 @@ module.exports = function(url, done) {
               rel: "self",
               type: "application/rss+xml",
               href: url,
-              title: select(dom, "title")[0].children[0].raw
+              title: title
             });
           }
         }
