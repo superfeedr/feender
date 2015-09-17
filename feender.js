@@ -5,7 +5,7 @@ var select = require('soupselect').select;
 
 module.exports = function(url, done) {
 
-  request.get(url, function (error, response, body) {
+  request.get(url, {gzip: true}, function (error, response, body) {
     var feeds = [];
     var handler = new htmlparser.DefaultHandler(function (error, dom) {
       if (error) {

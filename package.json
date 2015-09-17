@@ -1,15 +1,15 @@
 {
   "name": "feender",
-  "version": "0.0.10",
+  "version": "0.1.0",
   "main": "feender.js",
   "scripts": {
     "test": "mocha"
   },
   "license": "BSD",
   "dependencies": {
-    "htmlparser": "*",
-    "soupselect": "*",
-    "request": "~2.16.6"
+    "htmlparser": "1.7.7",
+    "soupselect": "0.2.0",
+    "request": "2.62.0"
   },
   "description": "This is a simple node.js (pure javascript) module that's able to extract feed urls from any url. This is based on Feediscovery, but functions locally, to avoid the outrageous charges from GAE."
 }
